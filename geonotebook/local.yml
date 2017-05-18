@@ -1,0 +1,39 @@
+- name: Install geonotebook python prerequirements
+  pip:
+    requirements: "{{repo_path}}/prerequirements.txt"
+    virtualenv: "{{venv_path}}"
+  environment:
+    CPLUS_INCLUDE_PATH: /usr/include/gdal
+    C_INCLUDE_PATH: /usr/include/gdal
+
+
+- name: Install geonotebook python requirements
+  pip:
+    requirements: "{{repo_path}}/requirements.txt"
+    virtualenv: "{{venv_path}}"
+  environment:
+    CPLUS_INCLUDE_PATH: /usr/include/gdal
+    C_INCLUDE_PATH: /usr/include/gdal
+
+
+- name: Install the geonotebook package
+  pip:
+    name: "{{repo_path}}"
+    virtualenv: "{{venv_path}}"
+    extra_args: "-e"
+    state: latest
+
+- name: Install the server extension
+  shell: >-
+    . {{venv_path}}/bin/activate && jupyter serverextension enable --py geonotebook --sys-prefix \
+
+- name: Install the notebook extension
+  shell: >-
+    . {{venv_path}}/bin/activate && jupyter nbextension enable --py geonotebook --sys-prefix
+
+
+- name: Download test data
+  shell: >-
+    ./get_test_data.sh
+  args:
+    chdir: "{{repo_path}}/tests/integration"

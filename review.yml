@@ -1,0 +1,34 @@
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    repo_labels:
+      geonotebook: "git@github.com:OpenGeoscience/geonotebook.git"
+      cumulus: "git@github.com:Kitware/cumulus.git"
+      girder: "git@github.com:girder/girder.git"
+      girder_worker: "git@github.com:girder/girder_worker.git"
+    repo_path: "{{playbook_dir}}/{{repo}}/{{branch}}"
+    venv_path: "{{playbook_dir}}/{{repo}}/.{{branch}}"
+    git_repo:  "{{ repo_labels[repo] }}"
+  tasks:
+    - file:
+        path: "{{ repo_path }}"
+        state: directory
+
+    - command: >-
+        virtualenv --python=python2 "{{ venv_path }}"
+      args:
+        creates: "{{ venv_path }}"
+
+    - git:
+        repo: "{{ git_repo }}"
+        dest: "{{ repo_path }}"
+        force: yes
+        version: "{{branch}}"
+
+    - stat:
+        path: "{{repo}}/local.yml"
+      register: optional_local
+
+    - include: "{{repo}}/local.yml"
+      when: optional_local.stat.exists

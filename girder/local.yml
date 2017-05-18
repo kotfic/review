@@ -1,0 +1,11 @@
+- name: Install Girder
+  pip:
+    name: "{{repo_path}}/"
+    editable: yes
+    virtualenv: "{{venv_path}}"
+
+- name: Install Girder web assets
+  shell: >-
+    . {{venv_path}}/bin/activate && girder-install web --dev --all-plugins
+  args:
+    chdir: "{{repo_path}}/"
