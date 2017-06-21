@@ -1,0 +1,5 @@
+- name: Install Girder Worker
+  pip:
+    name: "{{repo_path}}/"
+    editable: yes
+    virtualenv: "{{venv_path}}"

@@ -4,8 +4,27 @@
     editable: yes
     virtualenv: "{{venv_path}}"
 
-- name: Install Girder web assets
+
+- name: Install girder dev requirements
+  pip:
+    requirements: "{{repo_path}}/requirements-dev.txt"
+    virtualenv: "{{venv_path}}"
+
+
+- name: Install girder web assets
   shell: >-
-    . {{venv_path}}/bin/activate && girder-install web --dev --all-plugins
+    . {{venv_path}}/bin/activate && girder-install web --dev --all-plugins && touch {{repo_path}}/node_modules/.installed
   args:
     chdir: "{{repo_path}}/"
+    creates: "{{repo_path}}/node_modules/.installed"
+
+- name: Make build directory
+  file:
+    path: "{{repo_path}}/_build"
+    state: directory
+
+- name: Setup build directory
+  shell: >-
+    . {{venv_path}}/bin/activate && cmake ../ && make
+  args:
+    chdir: "{{repo_path}}/_build"
